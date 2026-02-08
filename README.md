@@ -151,8 +151,4 @@ npm run dev
 ---
 
 ### Owned By:
-  [Srivathsa Bhat](https://github.com/Srivathsa05) | [Niranjan C N](https://github.com/cnniranjan72) | [Shreyas S](https://github.com/shreyassridhar44) | [Yogith D](https://github.com/YOGITH-D) | [Sinchana K](https://github.com/sinchk)
-
-## 📄 License
-
-This project is licensed under the MIT License.
+  [Srivathsa Bhat](https://github.com/Srivathsa05) | [Niranjan C N](https://github.com/cnniranjan72) | [Shreyas S](https://github.com/shreyassridhar44) | [Yogith D](https://github.com/YOGITH-D) | [Samarth PV](https://github.com/sampv69git)
