@@ -1,0 +1,227 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 45 20% 98%;
+    --foreground: 145 25% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 145 25% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 145 25% 15%;
+
+    --primary: 142 70% 35%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 142 65% 45%;
+
+    --secondary: 35 55% 50%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 45 15% 92%;
+    --muted-foreground: 145 10% 45%;
+
+    --accent: 85 75% 55%;
+    --accent-foreground: 145 30% 10%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 145 15% 85%;
+    --input: 145 15% 90%;
+    --ring: 142 70% 35%;
+
+    --radius: 0.75rem;
+
+    --gradient-hero: linear-gradient(135deg, hsl(142 70% 35%), hsl(142 65% 45%), hsl(85 75% 55%));
+    --gradient-card: linear-gradient(180deg, hsla(0 0% 100% / 0.95), hsla(0 0% 100% / 0.85));
+    --gradient-earth: linear-gradient(135deg, hsl(35 55% 50%), hsl(25 65% 45%));
+    --gradient-sky: linear-gradient(180deg, hsl(200 70% 60%), hsl(210 80% 70%));
+    
+    --shadow-glow: 0 8px 32px hsla(142 70% 35% / 0.15);
+    --shadow-elevated: 0 10px 40px hsla(0 0% 0% / 0.1);
+    
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 145 20% 8%;
+    --foreground: 45 20% 95%;
+
+    --card: 145 18% 12%;
+    --card-foreground: 45 20% 95%;
+
+    --popover: 145 18% 12%;
+    --popover-foreground: 45 20% 95%;
+
+    --primary: 142 65% 45%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 142 60% 55%;
+
+    --secondary: 35 50% 45%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 145 15% 18%;
+    --muted-foreground: 145 10% 60%;
+
+    --accent: 85 70% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 145 15% 22%;
+    --input: 145 15% 20%;
+    --ring: 142 65% 45%;
+    
+    --gradient-hero: linear-gradient(135deg, hsl(142 60% 25%), hsl(142 55% 35%), hsl(85 65% 40%));
+    --gradient-card: linear-gradient(180deg, hsla(145 18% 12% / 0.95), hsla(145 18% 12% / 0.85));
+    --gradient-earth: linear-gradient(135deg, hsl(35 45% 35%), hsl(25 55% 30%));
+    --gradient-sky: linear-gradient(180deg, hsl(200 50% 35%), hsl(210 60% 45%));
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  .glass-effect {
+    @apply bg-white/80 dark:bg-card/80 backdrop-blur-xl border border-white/20;
+  }
+
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  .gradient-card {
+    background: var(--gradient-card);
+  }
+
+  .gradient-earth {
+    background: var(--gradient-earth);
+  }
+
+  .gradient-sky {
+    background: var(--gradient-sky);
+  }
+
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .shadow-elevated {
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.5s ease-out forwards;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.3s ease-out forwards;
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+/* Add these to your existing styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Add smooth transitions for the auth modal */
+.ReactModal__Overlay {
+  opacity: 0;
+  transition: opacity 200ms ease-in-out;
+}
+
+.ReactModal__Overlay--after-open {
+  opacity: 1;
+}
+
+.ReactModal__Overlay--before-close {
+  opacity: 0;
+}

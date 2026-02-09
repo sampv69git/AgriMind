@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Agrimind</title>
+</head>
+<body>
+    <h1>Welcome to Agrimind</h1>
+
+    <form id="recommendForm">
+        <label>Soil Type:</label>
+        <input type="text" name="soil_type" value="loamy" />
+        <br>
+        <label>Weather:</label>
+        <input type="text" name="weather" value="moderate" />
+        <br>
+        <button type="submit">Get Recommendation</button>
+    </form>
+
+    <p id="result"></p>
+
+    <script>
+        document.getElementById("recommendForm").onsubmit = async function (e) {
+            e.preventDefault();
+            const soil = e.target.soil_type.value;
+            const weather = e.target.weather.value;
+
+            const res = await fetch("/recommend", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ soil_type: soil, weather: weather })
+            });
+
+            const data = await res.json();
+            document.getElementById("result").innerText = JSON.stringify(data);
+        };
+    </script>
+</body>
+</html>
