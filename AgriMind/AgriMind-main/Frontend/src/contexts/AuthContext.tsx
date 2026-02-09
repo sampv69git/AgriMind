@@ -18,43 +18,47 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const API_BASE = (import.meta.env.VITE_BACKEND_URL as string | undefined)?.replace(/\/$/, '') || '';
+  const API_BASE =  (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') || '';
 
   useEffect(() => {
     checkAuth();
   }, []);
 
   const checkAuth = async () => {
-    try {
-      // Check if token exists in localStorage
-      const token = localStorage.getItem(AUTH_TOKEN_KEY);
-      
-      if (token) {
-        // Verify token is still valid with backend
-        const response = await fetch(`${API_BASE}/farmer/check-auth`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          }
-        });
-        
-        if (response.ok) {
-          setIsAuthenticated(true);
-        } else {
-          // Token is invalid, clear it
-          localStorage.removeItem(AUTH_TOKEN_KEY);
-          setIsAuthenticated(false);
-        }
-      } else {
-        setIsAuthenticated(false);
-      }
-    } catch (error) {
-      console.error('Auth check failed:', error);
-      setIsAuthenticated(false);
-    } finally {
-      setLoading(false);
+  const token = localStorage.getItem(AUTH_TOKEN_KEY);
+
+  // HARD FAIL: no token or backend URL → NOT authenticated
+  if (!token || !API_BASE) {
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    setIsAuthenticated(false);
+    setLoading(false);
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE}/farmer/check-auth`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Unauthorized');
     }
-  };
+
+    // Token is valid
+    setIsAuthenticated(true);
+  } catch (error) {
+    console.error('Auth verification failed:', error);
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    setIsAuthenticated(false);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const login = async (email: string, password: string) => {
     setError(null);
