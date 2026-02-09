@@ -1,0 +1,16 @@
+# Environment variables
+.env
+.env.*
+Flask/.env
+Frontend/.env
+Frontend/.env.deployment
+
+# Dependencies
+node_modules/
+
+# Logs
+*.log
+
+# OS / editor
+.DS_Store
+.vscode/
