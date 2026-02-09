@@ -1,14 +1,18 @@
 import { Outlet } from "react-router-dom";
-import Navbar from "./NavBar";
+import { useAuth } from "@/contexts/AuthContext";
+import { NavBar } from "./NavBar";
+import VoiceAssistantButton from "./VoiceAssistantButton";
 
 const Layout = () => {
+  // We still initialize auth (for navbar state), but do not gate content
+  useAuth();
   return (
     <div>
-      <Navbar />
+      <NavBar />
       <main>
-        {/* The Outlet component renders the current page (e.g., Index, CropRecommender) */}
         <Outlet />
       </main>
+      <VoiceAssistantButton />
     </div>
   );
 };

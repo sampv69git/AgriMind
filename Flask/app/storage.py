@@ -1,26 +1,24 @@
 import os
 import sys
 
-# Add ML folder to sys.path so we can import predict.py
+# Add ML folder to sys.path
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ML_PATH = os.path.join(BASE_DIR, "ml")
 sys.path.append(ML_PATH)
 
 try:
-    from predict import predict_top_crops_from_features
+    from ml.crop_recommender.predict import predict_top_crops_from_features
 except Exception as e:
-    print(f"Failed to import ML functions: {e}")
+    print(f"Failed to import crop recommender: {e}")
     predict_top_crops_from_features = None
 
-def predict_crop(features):
-    """
-    features: dict with keys matching your ML model inputs
-    Example keys: ['temperature', 'humidity', 'rainfall', 'ph', 'nitrogen', ...]
-    """
-    
-
-    # Convert features dict to list in the order your model expects
-    X = [list(features.values())]  # replace with proper preprocessing if needed
-    top3 = predict_top_crops_from_features(X)
-    # Return just the top suggestion
-    return top3[0][0], top3[1][0],top3[2][0] if top3 else "No prediction"
+def dummy_crop_recommendation(soil_type: str, weather: str) -> str:
+    soil = (soil_type or '').lower()
+    w = (weather or '').lower()
+    if 'loam' in soil and 'moderate' in w:
+        return 'Wheat'
+    if 'clay' in soil and 'rain' in w:
+        return 'Rice'
+    if 'sandy' in soil:
+        return 'Millet'
+    return 'Maize'

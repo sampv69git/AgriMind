@@ -1,8 +1,8 @@
-from yield_model_training import predict_yield_from_list
+from yield_model_training import predict_yield_for_crops
 
 # Example usage
-example_input = [100, 50, 50, 27, 85, 6.5, 180, 40, 7, 5, 'rice']
-print("Predicted yield (tonnes/ha):", predict_yield_from_list(example_input))
+numeric_features = [100, 50, 50, 27, 85, 6.5, 180, 40, 7, 5]
+top_3_crops = ['rice', 'wheat', 'maize']  # Example: output from crop recommendation model
 
-example_maize = [120, 60, 55, 25, 70, 6.5, 150, 38, 8, 7, 'maize']
-print("Predicted yield (tonnes/ha):", predict_yield_from_list(example_maize))
+yields = predict_yield_for_crops(numeric_features, top_3_crops)
+print("Predicted yields (tonnes/ha):", yields)

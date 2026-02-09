@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -11,6 +11,9 @@ interface AuthModalProps {
 
 export const AuthModal = ({ isOpen, onClose, initialTab = 'login' }: AuthModalProps) => {
   const [isLogin, setIsLogin] = useState(initialTab === 'login');
+  useEffect(() => {
+    setIsLogin(initialTab === 'login');
+  }, [initialTab]);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -46,7 +49,7 @@ export const AuthModal = ({ isOpen, onClose, initialTab = 'login' }: AuthModalPr
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
       <div className="bg-white rounded-lg w-full max-w-md relative">
         <button 
           onClick={onClose}

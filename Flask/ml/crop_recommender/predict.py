@@ -21,7 +21,7 @@ def predict_top_crops_from_features(X):
 
 # Optional test
 if __name__ == "__main__":
-    sample_input = [[50, 30, 20, 22, 60, 7.0, 400]]  # example
+    sample_input = [[90, 40, 30, 28, 1200, 6.5, 85]]  # example
     top3 = predict_top_crops_from_features(sample_input)
     print("Top 3 crop suggestions:")
     for crop, prob in top3:

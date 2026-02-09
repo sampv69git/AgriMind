@@ -1,69 +1,84 @@
-<<<<<<< HEAD
-import { Sprout, Settings, Cloud, Home } from "lucide-react";
-import { Link, NavLink, useLocation } from "react-router-dom"; // 1. Import useLocation
+import { Sprout, Settings, Activity, Leaf, Bot } from "lucide-react";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-
-const Navbar = () => {
-  const location = useLocation(); // 2. Get the current page location
-
-  const navLinks = [
-    { to: "/crop-recommender", label: "Recommender", icon: Sprout },
-    { to: "/weather", label: "Weather", icon: Cloud }, // Assuming a /weather route
-    { to: "/settings", label: "Settings", icon: Settings },
-  ];
-=======
-// Frontend/src/components/NavBar.tsx
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/AuthContext';
-import { AuthModal } from './auth/AuthModal';
-import { LogOut, User } from 'lucide-react';
+import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { AuthModal } from "./auth/AuthModal";
+import VoiceAssistant from "./VoiceAssistant";
+import { motion } from "framer-motion";
 
 export const NavBar = () => {
-  const { isAuthenticated, logout } = useAuth();
+  const location = useLocation();
+  const { isAuthenticated, loading, logout } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
+  const [voiceOpen, setVoiceOpen] = useState(false);
 
-  const handleAuthClick = (mode: 'login' | 'register') => {
+  const navLinks = [
+    { to: "/crop-recommender", label: "Recommender", icon: Leaf },
+    { to: "/yield-predictor", label: "Yield Predictor", icon: Activity },
+    { to: "/settings", label: "Settings", icon: Settings },
+  ];
+
+  const handleAuthClick = (mode: "login" | "register") => {
     setAuthMode(mode);
     setAuthModalOpen(true);
   };
->>>>>>> c24fabc1579c9743f52e71d6279546a21056e7a4
 
-  // 3. Create the click handler function
   const handleBrandClick = () => {
-    // If we are already on the homepage, scroll to the top
-    if (location.pathname === '/') {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth',
-      });
+    if (location.pathname === "/") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
-  return (
-<<<<<<< HEAD
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        {/* Brand Logo and Name */}
-        {/* 4. Add the onClick handler to the Link */}
-        <Link to="/" onClick={handleBrandClick} className="flex items-center gap-2">
-          <Sprout className="h-7 w-7 text-primary" />
-          <span className="text-xl font-bold text-foreground">AgriMind</span>
-        </Link>
+  // Removed auto-open behavior; login is now optional and user-triggered via button
 
-        <div className="flex items-center gap-4">
-          {/* Navigation Links */}
-          <nav className="hidden md:flex items-center gap-2">
+  return (
+    <>
+      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-border bg-background/60">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between relative">
+          {/* Gooey effect container */}
+          <div className="absolute inset-0 -z-10 overflow-hidden">
+            <div className="gooey-bg" />
+            {[...Array(8)].map((_, i) => (
+              <motion.span
+                key={i}
+                className="particle"
+                animate={{
+                  x: Math.sin(i) * 60,
+                  y: Math.cos(i) * 60,
+                  scale: [1, 1.3, 1],
+                }}
+                transition={{
+                  duration: 6 + i,
+                  repeat: Infinity,
+                  repeatType: "reverse",
+                }}
+              />
+            ))}
+          </div>
+
+          {/* Brand */}
+          <Link
+            to="/"
+            onClick={handleBrandClick}
+            className="flex items-center gap-2 relative z-10"
+          >
+            <Sprout className="h-7 w-7 text-primary drop-shadow-md" />
+            <span className="text-xl font-bold text-foreground">AgriMind</span>
+          </Link>
+
+          {/* Nav Links */}
+          <nav className="hidden md:flex items-center gap-3 relative z-10">
             {navLinks.map((link) => (
               <NavLink
                 key={link.label}
                 to={link.to}
                 className={({ isActive }) =>
-                  `flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  `flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                     isActive
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                      ? "bg-primary text-white shadow-lg scale-105"
+                      : "text-muted-foreground hover:bg-primary/10 hover:text-primary"
                   }`
                 }
               >
@@ -72,67 +87,98 @@ export const NavBar = () => {
               </NavLink>
             ))}
           </nav>
-        
-          {/* Auth Buttons */}
-          <div className="flex items-center gap-2">
-            <Button variant="outline" className="font-semibold">
-              Register
-            </Button>
-            <Button variant="default" className="font-semibold">
-              Login
-            </Button>
-=======
-    <nav className="bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <span className="text-xl font-bold text-green-600">AgriMind</span>
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            {isAuthenticated ? (
-              <>
-                <Button variant="ghost" className="flex items-center space-x-2">
-                  <User size={18} />
-                  <span>Profile</span>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={logout}
-                  className="flex items-center space-x-2"
-                >
-                  <LogOut size={18} />
-                  <span>Logout</span>
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button 
-                  variant="ghost" 
-                  onClick={() => handleAuthClick('login')}
-                >
-                  Login
-                </Button>
-                <Button 
-                  variant="default" 
-                  className="bg-green-600 hover:bg-green-700"
-                  onClick={() => handleAuthClick('register')}
-                >
-                  Register
-                </Button>
-              </>
-            )}
->>>>>>> c24fabc1579c9743f52e71d6279546a21056e7a4
-          </div>
-        </div>
-      </div>
 
-      <AuthModal 
-        isOpen={authModalOpen} 
+          {/* Voice + Auth Buttons */}
+<div className="flex items-center gap-6 relative z-10">
+  <Button
+    variant="ghost"
+    className="flex items-center gap-2 px-4 py-2 rounded-full font-medium text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all duration-300"
+    aria-label="Open voice assistant"
+    onClick={() => setVoiceOpen(true)}
+  >
+    <Bot className="h-6 w-6" />
+    <span>AgriBot</span>
+  </Button>
+
+  {isAuthenticated ? (
+    <Button
+      variant="outline"
+      className="font-semibold hover:bg-red-50 hover:text-red-600 transition-colors"
+      onClick={logout}
+    >
+      Logout
+    </Button>
+  ) : (
+    <>
+      <Button
+        variant="ghost"
+        className="font-semibold text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all duration-300"
+        onClick={() => handleAuthClick("login")}
+      >
+        Login
+      </Button>
+      <Button
+        variant="default"
+        className="font-semibold bg-primary text-white hover:bg-primary/90 transition-all duration-300"
+        onClick={() => handleAuthClick("register")}
+      >
+        Register
+      </Button>
+    </>
+  )}
+</div>
+
+        </div>
+      </header>
+
+      <AuthModal
+        isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
         initialTab={authMode}
       />
-    </nav>
+
+      <VoiceAssistant open={voiceOpen} onOpenChange={setVoiceOpen} />
+
+      {/* Extra Gooey CSS */}
+      <style>{`
+        .gooey-bg {
+          position: absolute;
+          inset: 0;
+          filter: url(#gooey);
+        }
+
+        .particle {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background: rgba(34,197,94,0.5);
+          filter: blur(8px);
+        }
+
+        @media (max-width: 768px) {
+          nav {
+            display: none;
+          }
+        }
+      `}</style>
+
+      {/* SVG Filter for Gooey Effect */}
+      <svg style={{ display: "none" }}>
+        <filter id="gooey">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+          <feColorMatrix
+            in="blur"
+            mode="matrix"
+            values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7"
+            result="gooey"
+          />
+          <feBlend in="SourceGraphic" in2="gooey" />
+        </filter>
+      </svg>
+    </>
   );
 };
 

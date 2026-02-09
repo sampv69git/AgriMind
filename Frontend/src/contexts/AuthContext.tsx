@@ -17,6 +17,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const API_BASE = (import.meta.env.VITE_BACKEND_URL as string | undefined)?.replace(/\/$/, '') || '';
 
   useEffect(() => {
     checkAuth();
@@ -24,7 +25,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('/farmer/check-auth');
+      const response = await fetch(`${API_BASE}/farmer/check-auth`);
       setIsAuthenticated(response.ok);
     } catch (error) {
       console.error('Auth check failed:', error);
@@ -36,15 +37,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (email: string, password: string) => {
     setError(null);
     try {
-      const response = await fetch('/farmer/login', {
+      const response = await fetch(`${API_BASE}/farmer/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
       
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Login failed');
+        let message = 'Login failed';
+        try {
+          const data = await response.json();
+          message = data?.error || message;
+        } catch {
+          message = response.statusText || message;
+        }
+        throw new Error(message);
       }
       
       setIsAuthenticated(true);
@@ -58,15 +65,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const register = async (name: string, email: string, password: string) => {
     setError(null);
     try {
-      const response = await fetch('/farmer/register', {
+      const response = await fetch(`${API_BASE}/farmer/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password }),
       });
       
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Registration failed');
+        let message = 'Registration failed';
+        try {
+          const data = await response.json();
+          message = data?.error || message;
+        } catch {
+          message = response.statusText || message;
+        }
+        throw new Error(message);
       }
       
       // Auto-login after registration
@@ -79,7 +92,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     try {
-      await fetch('/farmer/logout', { method: 'POST' });
+      await fetch(`${API_BASE}/farmer/logout`, { method: 'POST' });
     } finally {
       setIsAuthenticated(false);
       navigate('/');
@@ -88,7 +101,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, login, register, logout, loading, error }}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };
