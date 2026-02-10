@@ -1,4 +1,4 @@
-# File: Flask/app/__init__.py
+# Flask/app/__init__.py
 
 import os
 import uuid
@@ -11,6 +11,7 @@ from flask_cors import CORS
 
 from .database import db
 from .services import fetch_weather_data, fetch_soil_data
+
 from ml.crop_recommender.predict import predict_top_crops_from_features
 from ml.yield_predictor.yield_model_training import predict_yield_for_crops
 
@@ -37,25 +38,16 @@ def create_app():
     # -----------------------------
     database_url = os.environ.get("DATABASE_URL")
 
-    if database_url and database_url.startswith("postgres"):
+    if database_url:
         app.config["SQLALCHEMY_DATABASE_URI"] = database_url
     else:
-        app.config["SQLALCHEMY_DATABASE_URI"] = database_url or "sqlite:///agrimind.db"
+        # Local fallback only
+        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///agrimind.db"
 
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-key")
 
     db.init_app(app)
-
-    # -----------------------------
-    # DB readiness check (NO CRASH)
-    # -----------------------------
-    @app.before_request
-    def ensure_db_ready():
-        try:
-            db.session.execute("SELECT 1")
-        except Exception as e:
-            app.logger.warning(f"Database not ready yet: {e}")
 
     # -----------------------------
     # Routes
@@ -79,20 +71,8 @@ def create_app():
 
             X = [[N, P, K, temperature, rainfall, pH, humidity]]
 
-            try:
-                top_crops = predict_top_crops_from_features(X)
-                response = [{"crop": c, "prob": p} for c, p in top_crops]
-            except Exception:
-                from .storage import predict_crop
-                response = predict_crop({
-                    "N": N,
-                    "P": P,
-                    "K": K,
-                    "temperature": temperature,
-                    "humidity": humidity,
-                    "pH": pH,
-                    "rainfall": rainfall,
-                })
+            top_crops = predict_top_crops_from_features(X)
+            response = [{"crop": crop, "prob": prob} for crop, prob in top_crops]
 
             history.append({
                 "_id": str(uuid.uuid4()),
@@ -103,7 +83,7 @@ def create_app():
             return jsonify(response), 200
 
         except Exception as e:
-            logger.error(f"Prediction error: {e}")
+            logger.exception("Prediction error")
             return jsonify({"error": str(e)}), 400
 
     @app.route("/predict_yield", methods=["POST"])
@@ -114,7 +94,7 @@ def create_app():
             crops = data.get("crops")
 
             if not numeric_features or not crops:
-                return jsonify({"error": "Missing inputs"}), 400
+                return jsonify({"error": "Missing numeric_features or crops"}), 400
 
             predictions = predict_yield_for_crops(numeric_features, crops)
 
@@ -127,7 +107,7 @@ def create_app():
             return jsonify({"yield_predictions": predictions}), 200
 
         except Exception as e:
-            logger.error(f"Yield error: {e}")
+            logger.exception("Yield prediction error")
             return jsonify({"error": str(e)}), 400
 
     @app.route("/history", methods=["GET"])
@@ -137,50 +117,75 @@ def create_app():
     @app.route("/api/weather", methods=["POST"])
     def get_weather():
         data = request.json or {}
-        lat = float(data.get("latitude", 18.5204))
-        lon = float(data.get("longitude", 73.8567))
-        return jsonify(fetch_weather_data(lat, lon)), 200
+        latitude = float(data.get("latitude", 18.5204))
+        longitude = float(data.get("longitude", 73.8567))
+
+        return jsonify(fetch_weather_data(latitude, longitude)), 200
 
     @app.route("/api/soil", methods=["POST"])
     def get_soil():
         data = request.json or {}
-        lat = float(data.get("latitude", 18.5204))
-        lon = float(data.get("longitude", 73.8567))
-        return jsonify(fetch_soil_data(lat, lon)), 200
+        latitude = float(data.get("latitude", 18.5204))
+        longitude = float(data.get("longitude", 73.8567))
+
+        return jsonify(fetch_soil_data(latitude, longitude)), 200
 
     @app.route("/api/ai/ask", methods=["POST"])
     def ai_ask():
         body = request.get_json() or {}
-        question = body.get("question", "").strip()
+        question = (body.get("question") or "").strip()
 
         if not question:
-            return jsonify({"error": "Question required"}), 400
+            return jsonify({"error": "Missing question"}), 400
 
         api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
         if not api_key:
-            return jsonify({"error": "AI key missing"}), 500
-
-        prompt = f"You are AgriMind AI.\n\nQuestion:\n{question}"
+            return jsonify({"error": "Missing AI API key"}), 500
 
         import requests
+
+        prompt = f"""
+You are AgriMind's agriculture assistant.
+Give clear, safe, practical advice.
+
+Question:
+{question}
+"""
+
         url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key}"
+
         payload = {
             "contents": [{"role": "user", "parts": [{"text": prompt}]}]
         }
 
-        resp = requests.post(url, json=payload, timeout=30)
-        if resp.status_code != 200:
-            return jsonify({"error": "AI service error"}), 502
+        r = requests.post(url, json=payload, timeout=30)
+        if r.status_code != 200:
+            return jsonify({"error": "AI request failed"}), 502
 
-        data = resp.json()
-        text = data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
-        return jsonify({"text": text}), 200
+        text = r.json()["candidates"][0]["content"]["parts"][0]["text"]
+        return jsonify({"text": text})
 
+    # -----------------------------
+    # Blueprints
+    # -----------------------------
     from .routes import main
     app.register_blueprint(main)
+
+    # 🚫 IMPORTANT:
+    # ❌ NO db.create_all() HERE (Render will crash)
+    # Use migrations or manual init later
 
     return app
 
 
-# REQUIRED for Gunicorn
+# -----------------------------
+# Gunicorn entrypoint
+# -----------------------------
 app = create_app()
+
+
+# -----------------------------
+# Local development only
+# -----------------------------
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
